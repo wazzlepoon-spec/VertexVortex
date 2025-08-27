@@ -18,9 +18,9 @@ agents=[]
 traces_raw = []
 labels=[]
 if 0:
-    for f in os.listdir('/one/work_caches/ai_traces'):
+    for f in os.listdir('path-to-data'):
         print('f ', f)
-        df = pd.read_csv(f'/one/work_caches/ai_traces/{f}', header=None, names=headers)
+        df = pd.read_csv(f'path-to-ai-data'/{f}', header=None, names=headers)
         print('df.columns ', df.columns)
         for h in ['C','D']:
             agents.append(f'{f[:3]}_{h}')
