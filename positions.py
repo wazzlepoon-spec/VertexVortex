@@ -201,16 +201,7 @@ def between_union_last_a_before_b(seq, a, b):
         u |= s
     return u
 
-if 0:
-    # demo
-    s = list("abcdcb")
-    print(between_sets_first_b_after_a(s, 'a', 'd'))  # [{'b', 'c'}]
-    print(between_sets_first_b_after_a(s, 'c', 'b'))  # [{'d', 'c'}]
-    print(between_sets_first_b_after_a(s, 'b', 'b'))  # [] (no later 'b' after the only 'b' here)
-    print(between_sets_last_a_before_b(s, 'a', 'd'))  # [{'b', 'c'}]
-    print(between_sets_last_a_before_b(s, 'c', 'b'))  # [{'d', 'c'}]
-    print(between_sets_last_a_before_b(s, 'b', 'b'))  # [] (no later 'b' after the only 'b' here)
-    1/0
+
 def preprocess_between(seq):
     """Prepare fast 'is there a symbol c with a < c < b appearing in seq?' queries."""
     uniq_sorted = sorted(set(seq))             # total order of seen symbols
@@ -498,292 +489,8 @@ class Program:
             c+=1
         print(present_prog)
 
-    def new_dongur(self,test_sequence,next):
-        new=[]
-        appliedrule=None
-
-        seq = test_sequence#[:-1]
-        token = test_sequence[-1]
-        #print('seq ', seq)
-        fwd = self.build_adj_from_seq(seq)
-        pre = fwd.T 
-
-        if 0:
-            prevtoken = test_sequence[-1]
-            test_sequence = test_sequence[:-1]
-
-        #print('fwd ', fwd)
-        if token in test_sequence and token in fwd.index:
-            cols_with_1 = fwd.columns[fwd.loc[token] > 0].tolist()
-            cols_with_0 = fwd.columns[fwd.loc[token] == 0].tolist()
-
-            if next in cols_with_1:
-                pass 
-            else:
-                new.extend([NegBoxNeg(token),NegBox(token)])
-                appliedrule = 'brasse'
-
-        if next in test_sequence and next in pre.index:
-            cols_with_1 = pre.columns[pre.loc[token] > 0].tolist()
-            cols_with_0 = pre.columns[pre.loc[token] == 0].tolist()
-
-            if token in cols_with_1:
-                pass
-            else:
-                new.extend([BoxNeg(token),Box(token)])
-                appliedrule = 'perikles'
-
-
-        sv,urt = is_consistent(new)
-
-        #print('seq,token,next ', seq,token,next)
-        #print('new ', new)
-        #print('sv ', sv,urt)
-        return new,sv,urt,appliedrule
-
-    def cumulative_belief(self):
-        prog = []
-        present_theory = []
-        test_seq=self.sequence_order[:2]
-        #present_prog = ''.join(test_seq)
-        ptr = 2
-        c=0
-        while True:
-            if ptr>=len(self.sequence_order):
-                break
-
-            #print('len(self.sequence_order) ', len(self.sequence_order))
-            #print('ptr ', ptr)
-            token = self.sequence_order[ptr]
-            th,sv,reason,ar = self.new_dongur(test_seq,token)
-            if sv: # th is consistent
-                #present_prog = f'{present_prog}{token}'
-                #print('status cons',present_prog,test_seq,reason,ar,token)
-                test_seq.append(token)
-                #present_prog = f'{present_prog}{token}'
-                ptr+=1
-            else:
-                prog.append(test_seq)
-                #print('status inco',present_prog,test_seq,reason,ar,token)
-                test_seq=[token]
-                #present_prog = str(test_seq)
-                #present_prog = ''.join(test_seq)
-                # don't change ptr
-                # oh, but do
-                ptr+=1
-                continue
-            if ptr>=len(self.sequence_order):
-                break
-            if c>300:
-                break
-            c+=1
-        #print(present_prog)
-        #present_prog = ''.join(test_seq)
-        prog.append(test_seq)
-        print('program',len(prog),len(self.sequence_order)/len(prog))
-        for p in prog:
-            print(p)
-        return prog
-
-
-    def farting_belief(self):
-        test_seq=self.sequence_order
-        prog=[]
-        cumseq = [test_seq[0]]
-        test_seq=test_seq[1:]
-        for i,t in enumerate(test_seq):
-            if i>=len(test_seq)-1:
-                break
-            f,p = self.reach_after_before(self.sequence_order[min(0,i-15):i])
-            #print('f.columns ', f.columns)
-            #print('f.index ', f.index)
-            if test_seq[i+1] in f.columns and t in f.index and  f.loc[t,test_seq[i+1]]==0:
-                prog.append(cumseq)
-                cumseq=[t]
-            else:
-                cumseq.append(t)
-        print('program',len(prog),len(prog)/len(self.sequence_order))
-        for p in prog:
-            print(p)
-        return prog
-
-    def another_belief(self):
-        test_seq = self.sequence_order
-        #prep = preprocess_between(test_seq)
-        #print('prep ', prep)
-        prog = []
-        cumseq = [test_seq[0]]
-        cumthe = []
-        test_seq=test_seq[1:]
-        F = self.build_adj_from_seq(self.sequence_order)
-        P = F.T
-        FR,PR = self.reach_after_before(self.sequence_order)
-        for i,t in enumerate(test_seq):
-            if i>=len(test_seq)-1:
-                break
-            #cumseq.append(t)
-            fa,pa = self.reach_after_before(test_seq[:i])
-            fb,pb = self.reach_after_before(test_seq[i+1:])
-            fs,ps =  self.reach_after_before(cumseq)
-            sv = between_sets_last_a_before_b(self.sequence_order,t,test_seq[i+1])
-            #sv = between_sets_last_a_before_b(test_seq[:i],t,test_seq[i+1])
-            #sv = between_sets_last_a_before_b(test_seq[i:],t,test_seq[i+1])
-            sv = [x for x in sv if x and len(x)<3]
-            print('cumseq ', cumseq)
-            savedst = ''
-            stcnt=0
-            if 0:
-                for fig in sv:
-                    st = 'sv sequcence order '
-                    st ='test_seq[i:] ' 
-
-                    next = test_seq[i+1]
-                    for pig in fig:
-                        if t in FR.columns and next in FR.columns and FR.loc[t,test_seq[i+1]]>0:
-                            st += 'FR '
-                        else:
-                            st += 'njetFR '
-                        try:
-                            if t in fa.columns and next in fa.columns and fa.loc[t,test_seq[i+1]]>0:
-                                st += 'fa '
-                            else:
-                                st += 'njeta '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('t,test_seq[i+1] ', t,test_seq[i+1],next)
-                            print('pig,fa.columns ', pig,fa.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fa ', fa)
-                            raise
-                        try:
-                            if t in fb.columns and next in fb.columns and fb.loc[t,test_seq[i+1]]>0:
-                                st += 'fb '
-                            else:
-                                st += 'njetb '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('pig,fb.columns ', t,pig,fb.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fb ', fb)
-                            raise
-                        try:
-                            if t in fs.columns and next in fs.columns and fs.loc[t,test_seq[i+1]]>0:
-                                st += 'fs '
-                            else:
-                                st += 'njets '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('pig,fs.columns ', t,pig,fs.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fs ', fs)
-                            #raise
-                    if savedst == '':
-                        savedst = st
-                    if st == savedst:
-                        stcnt+=1
-                    else:
-                        print(st,stcnt)
-                        
-                        stcnt=0
-                        savedst=''
-            if 1:
-                for fig in sv:
-                    st = 'sv sequcence order '
-                    st ='test_seq[:i] ' 
-
-                    next = test_seq[i+1]
-                    for pig in fig:
-                        if t in PR.columns and next in PR.columns and PR.loc[t,test_seq[i+1]]>0:
-                            st += 'PR '
-                        else:
-                            st += 'njetPR '
-                        try:
-                            if t in pa.columns and next in pa.columns and pa.loc[t,test_seq[i+1]]>0:
-                                st += 'pa '
-                            else:
-                                st += 'njeta '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('t,test_seq[i+1] ', t,test_seq[i+1],next)
-                            print('pig,fa.columns ', pig,fa.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fa ', fa)
-                            raise
-                        try:
-                            if t in pb.columns and next in pb.columns and pb.loc[t,test_seq[i+1]]>0:
-                                st += 'pb '
-                            else:
-                                st += 'njetb '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('pig,fb.columns ', t,pig,fb.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fb ', fb)
-                            raise
-                        try:
-                            if t in ps.columns and next in ps.columns and ps.loc[t,test_seq[i+1]]>0:
-                                st += 'ps '
-                            else:
-                                st += 'njets '
-                        except KeyError:
-                            print('sv ', sv)
-                            print('fig ', fig)
-                            print('pig,fs.columns ', t,pig,fs.columns)
-                            print('i,len(test_seq) ', i,len(test_seq))
-                            print('fs ', fs)
-                            #raise
-                    if savedst == '':
-                        savedst = st
-                    if st == savedst:
-                        stcnt+=1
-                    else:
-                        print(st,stcnt)
-                        
-                        stcnt=0
-                        savedst=''
-            if 0:
-                sv = between_sets_last_a_before_b(test_seq[:i],t,test_seq[i+1])
-                sv = [x for x in sv if x and len(x)<3]
-                for fig in sv:
-                    print('sv :i')
-                    for pig in fig:
-                        if pig in fa.columns and fa.loc[t,test_seq[i+1]]>0:
-                            print('fa')
-                        if pig in fb.columns and fb.loc[t,test_seq[i+1]]>0:
-                            print('fb')
-                        try:
-                            if pig in fs.columns and fs.loc[t,test_seq[i+1]]>0:
-                                print('fs')
-                        except KeyError:
-                            pass
-                            print('fs')
-
-            #print('sv ', t,test_seq[i+1],sv)
-            if sv:
-                prog.append(cumseq)
-                cumseq=[t]
-            else:
-                cumseq.append(t)
-        print('program',len(prog),len(prog)/len(self.sequence_order))
-        #for p in prog:
-            #print(p)
-        return prog
-
-    def fitt_belief(self):
-        test_seq=self.sequence_order
-        print('test_seq ', test_seq)
-        for i,t in enumerate(test_seq):
-            if i>=len(test_seq)-1:
-                break
-            next = test_seq[i+1]
-            print('i,t ', i,t,next)
-
-
+    
+    
     def new_belief(self,test_sequence,token,next,prev):
         new=[Box(token)]
         ff = fwd.loc[token,next]
@@ -1078,8 +785,6 @@ def canonical_program(sequence,objective=None):
 
 cp = canonical_program(data,'obes')
 
-cp.fitt_belief()
-
 A = cp.build_adj_from_seq(data)
 print(A)
 f,p = cp.reach_after_before(data)
@@ -1337,18 +1042,6 @@ def extract_belief(program_sequence,test_sequence=None,F=None,P=None):
 
 
     
-
-
-
-
-
-
-if 0:
-    u = extract_modal_theory(data,[rule_f2],cp,1)
-    print('u ', u)
-    y = list(set(u))
-    print('y ', y)
-    print('is_consistent(y) ', is_consistent(y))
 
 
 
@@ -1674,17 +1367,6 @@ if 1:
     print('y ', y)
     print('one_maximally_consistent_subset(y) ', one_maximally_consistent_subset(y))
 
-if 0:
-    print('test 2 ---------------')
-
-    print('seq to program')
-    data = 'abcd'
-    cp = canonical_program(data,'getlaid')
-    cp.printp()
-    f,p = cp.make_FP(data)
-    print('f ', f)
-    print(p)
-
 
 if 2:
     print('test 2 ---------------')
@@ -1733,9 +1415,7 @@ def reconstruct_eam(data):
         last = g
         
     cp = canonical_program(enc,'getmilk')
-    #cb = cp.cumulative_belief()
-    #cb = cp.farting_belief()
-    #cb = cp.another_belief()
+    
     cb = find_inconsistency_alt(data)
     #cb = find_inconsistency(data)
     print('cb ', cb)
