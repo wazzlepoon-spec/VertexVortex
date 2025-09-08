@@ -1,0 +1,7 @@
+meta_path: data/
+time_format: '%b %d, %Y @ %H:%M:%S.%f'
+input_csv: /one/work_caches/ai_traces/hurt0.csv
+map: data/hilf0.map
+sorted_csv: data/sorted_traces/hurt0_sorted.csv
+behave_csv: data/sorted_traces/hurt0_behave.csv
+rename_map: data/rename2

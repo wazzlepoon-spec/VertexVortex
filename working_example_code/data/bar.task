@@ -1,0 +1,7 @@
+meta_path: data/
+time_format: '%b %d, %Y @ %H:%M:%S.%f'
+input_csv: /one/data/linux_apt_dataset_2024/21-25-December.csv
+map: data/klur.map
+sorted_csv: data/sorted_traces/bar_sorted.csv
+behave_csv: data/sorted_traces/bar_behave.csv
+rename_map: data/rename1.map

@@ -1,0 +1,27 @@
+conn_state      : conn_state
+duration        : duration
+history         : history
+src_ip_zeek     : src_ip_zeek
+dest_ip_zeek    : dest_ip_zeek
+dest_port_zeek  : dest_port_zeek
+local_orig      : local_orig
+local_resp      : local_resp
+missed_bytes    : missed_bytes
+orig_bytes      : orig_bytes
+orig_ip_bytes   : orig_ip_bytes
+orig_pkts       : orig_pkts
+proto           : proto
+resp_bytes      : resp_bytes
+resp_pkts       : resp_pkts
+service         : service
+resp_ip_bytes   : resp_ip_bytes
+label_tactic    : label_tactic
+label_binary    : label_binary
+label_cve       : label_cve
+label_technique : label_technique
+EOF
+Timestamp : datetime
+ts              : ts
+uid             : uid
+community_id    : community_id
+src_port_zeek   : src_port_zeek
