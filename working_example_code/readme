@@ -1,1 +1,13 @@
 contains updated python scripts that work.
+
+how to.
+
+0. requirements Python 3.11. packages: requirements.txt
+
+1. test the EAM attributution model:
+
+$ python fingerprints.py eam testset.smp --model the_model.smp
+
+3. test the comparison with ML
+
+$ python ml_benchmarking.py
